@@ -1,0 +1,61 @@
+use strict;
+use warnings;
+use utf8;
+
+package ZCME::SecretsFile;
+use Carp qw(croak);
+use Storable qw(lock_store lock_retrieve);
+
+sub new {
+    my $class = shift;
+    my %params = @_;
+    my $self = bless {}, (ref($class)||$class);
+    
+    my $filename = $params{-filename} || croak "-filename required";
+    my $dir = $params{-dir} || $ENV{'HOME'} || croak "-dir or HOME required";
+    $self->{_account} = $params{-account};
+
+    my $file = $self->{_file} = "$dir/$filename";
+    if(-f $file) {
+	$self->{_data} = lock_retrieve($file);
+	($self->{_data} and ref($self->{_data}) eq 'HASH') 
+	    or die "Invalid secrets file: $file";
+    } else {
+	$self->{_data} = { };
+	lock_store($self->{_data} => $file);
+    }
+    chmod(0600, $file);
+
+    $self->{_account} ||= $self->{_data}->{default_account};
+    unless(defined($self->{_account})) {
+	croak "-account or default_account required";
+    }
+
+    return $self;
+}
+
+sub account {
+    my $self = shift;
+    my $account = shift;
+    if(defined($account)) {
+	$self->{_account} = $account;
+    }
+    return $self->{_account};
+}
+
+sub set {
+    my $self = shift;
+    my $key = shift;
+    my $val = shift;
+    $self->{_data}->{$self->account()}->{$key} = $val;
+    lock_store($self->{_data} => $self->{_file});
+}
+
+sub get {
+    my $self = shift;
+    my $key = shift;
+    return $self->{_data}->{$self->account()}->{$key};
+}
+
+1;
+__END__
