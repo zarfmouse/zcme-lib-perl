@@ -7,6 +7,7 @@ package ZCME::Facebook::Graph;
 use base qw(ZCME::REST);
 
 use ZCME::Facebook::Graph::OAuth;
+use ZCME::Facebook::Graph::TestUser;
 
 use CGI qw(escape);
 use Data::Dumper qw(Dumper);
@@ -42,7 +43,7 @@ sub debug_token {
     my $self = shift;
     my $token = shift;
 
-    my $app_token = $self->app_access_token();
+    my $app_token = $self->oauth()->app_access_token();
     my $resp = $self->rest("GET", ["debug_token", 
 				   {
 				       access_token => $app_token,
@@ -50,6 +51,19 @@ sub debug_token {
 				   }]);
     return $resp;
 }
+
+sub test_users {
+    my $self = shift;
+    my $app_id = $self->oauth()->client_id();
+    my $resp = $self->rest("GET", ["$app_id/accounts/test-users",
+				   {
+				       access_token => $self->oauth()->app_access_token()
+				   }]);
+    my @retval = map { (__PACKAGE__.'::TestUser')->new($self, $_) } @{$resp->{data}}; 
+    return \@retval;
+}
+
+
 
 1;
 

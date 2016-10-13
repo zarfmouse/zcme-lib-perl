@@ -54,12 +54,33 @@ sub redirect_uri {
 	"https://www.facebook.com/connect/login_success.html";
 }
 
+sub _flatten {
+    my @flat = ();
+    foreach my $val (@_) {
+        if(ref($val) eq 'ARRAY') {
+            push(@flat, _flatten(@$val));
+        } else {
+            push(@flat, $val);
+        }
+    }
+    return @flat;
+}
+
+sub _comma {
+    return join(',', _flatten(shift));
+}
+
 sub login_uri {
     my $self = shift;
+    my $scopes = shift;
+    my $extra_cgi = '';
+    if(defined($scopes)) {
+	$extra_cgi .= "&scopes=".escape(_comma($scopes));
+    }
     
     my $client_id = $self->client_id();
     my $redirect_uri = $self->redirect_uri();
-    return "https://www.facebook.com/v2.8/dialog/oauth?client_id=".escape($client_id)."&redirect_uri=".escape($redirect_uri);
+    return "https://www.facebook.com/v2.8/dialog/oauth?client_id=".escape($client_id)."&redirect_uri=".escape($redirect_uri).$extra_cgi;
 }
 
 sub extract_code_from_uri {
