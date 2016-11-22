@@ -12,7 +12,7 @@ sub new {
     my $self = bless {}, (ref($class)||$class);
     
     my $filename = $params{-filename} || croak "-filename required";
-    my $dir = $params{-dir} || $ENV{'HOME'} || croak "-dir or HOME required";
+    my $dir = $params{-dir} || $ENV{'ZCME_SECRETS_DIR'} || $ENV{'HOME'} || croak "-dir or HOME required";
     $self->{_account} = $params{-account};
 
     my $file = $self->{_file} = "$dir/$filename";
@@ -30,7 +30,6 @@ sub new {
     unless(defined($self->{_account})) {
 	croak "-account or default_account required";
     }
-
     return $self;
 }
 
