@@ -20,7 +20,7 @@ my $search_dir = "$RealBin/..";
 my $skip_scan = 0;
 my $die_on_error = 0;
 my $json_report;
-my @force_modules = qw(Bundle::LWP Net::HTTP JSON JSON::PP Mozilla::CA XML::Parser XML::SAX XML::DOM Carp::Always Math::Round HTTP::Request File::ChangeNotify CGI LWP::Protocol::https);
+my @force_modules = qw(Bundle::LWP Net::HTTP JSON JSON::PP Mozilla::CA XML::Parser XML::SAX XML::DOM Carp::Always Math::Round HTTP::Request File::ChangeNotify CGI LWP::Protocol::https DBD::mysql);
 GetOptions(
     "help" => \$help,
     "verbose" => \$verbose,
