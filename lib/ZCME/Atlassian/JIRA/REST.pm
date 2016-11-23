@@ -23,7 +23,8 @@ use ZCME::Atlassian::JIRA::REST::Issue::Iterator;
 
 sub new {
     my $self = shift;
-    my $account = shift || $ENV{'JIRA_AUTH_ACCOUNT'};
+    my %params = @_;
+    my $account = $params{-account} || $ENV{'JIRA_AUTH_ACCOUNT'};
     $self = $self->SUPER::new();
     $self->{_secrets} = ZCME::SecretsFile->new(-filename => '.jira_auth',
 					       -account => $account);
