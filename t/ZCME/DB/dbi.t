@@ -14,7 +14,7 @@ use Test::More tests => 2;
 
 use ZCME::DB;
 
-my $db = ZCME::LMS::DB->new();
+my $db = ZCME::DB->new();
 my $dbh = $db->dbh();
 
 isa_ok($dbh, 'DBI::db');
