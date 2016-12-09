@@ -211,6 +211,11 @@ sub allowed {
     return $self->editmeta()->allowed(@_);
 }
 
+sub fieldeq {
+    my $self = shift;
+    return $self->editmeta()->fieldeq(@_);
+}
+
 sub fieldkey {
     my $self = shift;
     my $field_name = shift;
@@ -487,30 +492,6 @@ sub browse_url {
     return $self->rest_object()->server_url()."/browse/".$self->key();
 }
 
-sub _eq {
-    my ($a,$b) = (shift,shift);
-    unless(defined($a) or defined($b)) {
-	return 1;
-    }
-    unless(defined($a) and defined($b)) {
-	return undef;
-    }
-    my $numeric = shift || (looks_like_number($a) && looks_like_number($b));
-    if(ref($a) eq 'ARRAY' and ref($b) eq 'ARRAY') {
-	my $equals = scalar(@$a) == scalar(@$b);
-	if($equals) {
-	    for(my $i=0;$i<scalar(@$a);$i++) {
-		$equals &&= _eq($a->[$i], $b->[$i]);
-	    }
-	}
-	return $equals;
-    } else {
-	$a = _valname($a);
-	$b = _valname($b);
-	return $numeric ? $a == $b : $a eq $b;
-    }
-}
-
 sub exists {
     my $self = shift;
     my $field_name = shift;
@@ -519,10 +500,10 @@ sub exists {
     my $field_values = $self->get($field_name);
     if(ref($field_values) eq 'ARRAY') {
 	foreach my $field_value (@$field_values) {
-	    _eq($field_value, $value) and return 1;
+	    $self->fieldeq($field_name, $field_value, $value) and return 1;
 	}
     } else {
-	return _eq($field_values, $value);
+	$self->fieldeq($field_name, $field_values, $value);
     }
 }
 
@@ -541,7 +522,7 @@ sub set {
     my $key = $self->fieldkey(shift);
     my $val = $self->fieldval($key, shift);
     my $oldval = $self->get($key);
-    unless(_eq($val, $oldval)) {
+    unless($self->fieldeq($key, $val, $oldval)) {
 	push(@{$self->{_update}->{$key}}, { 'set' => $val });
     }
 }
@@ -572,7 +553,7 @@ sub edit {
 sub save {
     my $self = shift;
     my $refresh = 0;
-    return undef unless $self->is_dirty();
+    return $self unless $self->is_dirty();
     if($VERBOSE) {
 	warn "Updating $self->{_key}...\n";
 	warn "\tCreate Links: ".encode_json($self->{_createLinks}) if @{$self->{_createLinks}};
@@ -588,7 +569,7 @@ sub save {
     }
     if($DRY_RUN) {
 	warn "Not updating $self->{_key} during dry run.\n";
-	return undef;
+	return $self;
     }
     foreach my $link (@{$self->{_createLinks}}) {
 	eval {

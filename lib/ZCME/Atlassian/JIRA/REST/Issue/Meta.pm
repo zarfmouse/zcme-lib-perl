@@ -115,6 +115,20 @@ sub fieldkey {
     return $field_key;
 }
 
+sub fieldeq {
+    my $self = shift;
+    my $field_name = shift;
+    my $val1 = shift;
+    my $val2 = shift;
+    if($self->datetime_field($field_name)) {
+	my $s1 = ZCME::Date->new($val1)->printf("%s");
+	my $s2 = ZCME::Date->new($val2)->printf("%s");
+	return $s1 == $s2;
+    } else {
+	return _eq($val1, $val2);
+    }
+}
+
 sub field_exists {
     my $self = shift;
     my $key = $self->fieldkey(shift);
@@ -211,7 +225,7 @@ sub fieldval {
 	    return { key => $val };
 	} elsif($self->datetime_field($key)) {
 	    my $date = ZCME::Date->new($val);
-	    return $date->printf("%O.0-0800");
+	    return $date->printf("%Y-%m-%dT%H:%M:00.000%z"); 
 	} elsif($self->numeric_field($key)) {
 	    return $val*1.0+0.0;
 	} else {
