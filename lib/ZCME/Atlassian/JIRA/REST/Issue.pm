@@ -578,7 +578,7 @@ sub save {
 	$self->{_update} = {};	
     }
     $self->refresh();
-    return 1;
+    return $self;
 }
 
 
