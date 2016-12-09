@@ -11,12 +11,14 @@ use JSON qw(encode_json decode_json);
 use Carp qw(carp croak);
 use Storable qw(lock_store lock_retrieve);
 use File::Path qw(make_path);
+use Data::Dumper qw(Dumper);
 
 use ZCME::Atlassian::JIRA::REST::Issue::Meta;
 use ZCME::Atlassian::JIRA::REST::Issue::Attachment;
 use ZCME::Atlassian::JIRA::REST::Issue::Comment;
 use ZCME::Atlassian::JIRA::REST::Issue::RemoteLink;
 use ZCME::Atlassian::JIRA::REST::Issue::Worklog;
+use ZCME::Atlassian::JIRA::REST::Issue::Transition;
 
 our $VERBOSE = 0;
 our $DRY_RUN = 0;
@@ -369,6 +371,47 @@ sub get_comments {
 	return \@retval;
     } else {
 	return [];
+    }
+}
+
+sub get_transitions {
+    my $self = shift;
+
+    my $transitions = $self->{_content}->{transitions};
+    unless(defined($transitions)) {
+	$transitions = 
+	    $self->{_content}->{transitions} = 
+	    $self->rest('GET', ["issue/$self->{_key}/transitions", 
+				{expand => "transitions.fields"}])->{transitions};
+	$self->cache_store();
+    }
+
+    if(defined($transitions)) {
+	my @retval = map { (__PACKAGE__.'::Transition')->new($self->{_rest}, $self, $_) } @$transitions;
+	return \@retval;
+    } else {
+	return [];
+    }
+}
+
+sub get_transition {
+    my $self = shift;
+    my %params = @_;
+    
+    my $test = sub {
+	my $item = shift;
+	my $found = 1;
+	$found &&= $item->key() eq $params{-id} if(exists $params{-id});
+	$found &&= $item->name() =~ m/^\Q$params{-name}/ if(exists $params{-name});
+	$found &&= $item->to() eq $params{-to} if(exists $params{-to});
+	return $found;
+    };
+    
+    my @hits = grep {$test->($_)} @{$self->get_transitions()};
+    if(scalar(@hits) == 1) {
+	return $hits[0];
+    } else {
+	die "Invalid transition specification: ".Dumper(\%params);
     }
 }
 
