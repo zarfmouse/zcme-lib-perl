@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-package ZCME::LMS::DB;
+package ZCME::DB;
 
 use DBI;
 use Data::Dumper;
