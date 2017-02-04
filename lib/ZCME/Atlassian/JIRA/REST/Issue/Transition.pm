@@ -9,6 +9,8 @@ use base qw(ZCME::REST::Object);
 use Data::Dumper qw(Dumper);
 use Carp qw(croak);
 
+our $DRY_RUN = $ZCME::Atlassian::JIRA::REST::Issue::DRY_RUN;
+
 sub new {
     my $class = shift;
     my $self=$class->SUPER::new(shift);
@@ -122,8 +124,12 @@ sub do {
     $self->{_post}->{transition}->{id} = $self->key();
 
     my $issue_key = $self->{_issue}->key();
-    $self->rest('POST', "issue/$issue_key/transitions", $self->{_post});
-    $self->{_issue}->refresh();
+    if($DRY_RUN) {
+	warn "Not executing transition during dry run.\n".Dumper($self->{_post});
+    } else {
+	$self->rest('POST', "issue/$issue_key/transitions", $self->{_post});
+	$self->{_issue}->refresh();
+    }
     $self->{_done} = 1;
 }
 
