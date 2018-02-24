@@ -8,13 +8,14 @@ BEGIN {
     my $file = $FindBin::RealBin;
     $file =~ s{/t/.*$}{/setup.pl};
     require $file;
+    require "$FindBin::RealBin/test_config.pl";
 };
 
 use Test::More tests => 12;
 
 use ZCME::Atlassian::JIRA::REST;
 use Data::Dumper qw(Dumper);
-my $jira = ZCME::Atlassian::JIRA::REST->new();
+my $jira = ZCME::Atlassian::JIRA::REST->new(-account => $ZCME::Atlassian::JIRA::REST::test_config::test_account);
 my $username = $jira->username();
 my $user = $jira->get_user($username);
 ok($user->isa('ZCME::Atlassian::JIRA::REST::User'), 'class');
