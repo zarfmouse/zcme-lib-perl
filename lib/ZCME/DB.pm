@@ -22,10 +22,8 @@ sub new {
     $self->{username} = $secrets->get('username');
     $self->{password} = $secrets->get('password');
     $self->{base_url} = $secrets->get('base_url');
-    if($self->{base_url} =~ m[^(.+)://([^\/]+)(?:\:([0-9]+))?/(.+)$]) {
+    if(defined($self->{base_url}) && $self->{base_url} =~ m[^(.+)://([^\/\:]+)(?:\:([0-9]+))?/(.+)$]) {
 	($self->{driver}, $self->{hostname}, $self->{port}, $self->{database}) = ($1,$2,$3,$4);
-    } else {
-	die "Malformed DB URL: $self->{base_url}.";
     }
 
     if($param{'-tunnel'}) {
@@ -45,44 +43,48 @@ sub new {
 
 sub dsn {
     my $self = shift;
-    my $dsn = "DBI:$self->{driver}:host=$self->{hostname}";
-    if($self->{database}) {
-	$dsn .= ";database=$self->{database}";
+    my $driver = $self->driver();
+    my $host = $self->hostname();
+    my $database = $self->database();
+    my $port = $self->port();
+    my $dsn = "DBI:$driver:host=$host";
+    if(defined($database)) {
+	$dsn .= ";database=$database";
     }
-    if($self->{port}) {
-	$dsn .= ";port=$self->{port}";
+    if(defined($port)) {
+	$dsn .= ";port=$port";
     }
     return $dsn;
 }
 
 sub database {
     my $self = shift;
-    return $self->{database};
+    return $self->{database} || $ENV{MYSQL_DATABASE};
 }
 
 sub hostname {
     my $self = shift;
-    return $self->{hostname};
+    return $self->{hostname} || $ENV{MYSQL_SERVICE_HOST};
 }
 
 sub driver {
     my $self = shift;
-    return $self->{driver};
+    return $self->{driver} || 'mysql';
 }
 
 sub port {
     my $self = shift;
-    return $self->{port};
+    return $self->{port} || $ENV{MYSQL_SERVICE_PORT};
 }
 
 sub username { 
     my $self = shift;
-    return $self->{username};
+    return $self->{username} || $ENV{MYSQL_USER}; 
 }
 
 sub password { 
     my $self = shift;
-    return $self->{password};
+    return $self->{password} || $ENV{MYSQL_PASSWORD};
 }
 
 sub disconnect {
@@ -108,7 +110,12 @@ sub dbh {
 
 sub launch_mysql {
     my $self = shift;
-    system("mysql -P $self->{port} -h $self->{hostname} -p$self->{password} -u $self->{username} $self->{database}");
+    my $port = $self->port();
+    my $hostname = $self->hostname();
+    my $username = $self->username();
+    my $database = $self->database();
+    my $password  = $self->password();
+    system("mysql -P $port -h $hostname -p$password -u $username $database");
     return $self;
 }
 
