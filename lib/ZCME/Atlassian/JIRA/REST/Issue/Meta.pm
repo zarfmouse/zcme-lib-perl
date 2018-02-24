@@ -120,12 +120,18 @@ sub fieldeq {
     my $field_name = shift;
     my $val1 = shift;
     my $val2 = shift;
-    if($self->datetime_field($field_name)) {
-	my $s1 = ZCME::Date->new($val1)->printf("%s");
-	my $s2 = ZCME::Date->new($val2)->printf("%s");
-	return $s1 == $s2;
+    if(defined($val1) and defined($val2)) {
+	if($self->datetime_field($field_name)) {
+	    my $s1 = ZCME::Date->new($val1)->printf("%s");
+	    my $s2 = ZCME::Date->new($val2)->printf("%s");
+	    return $s1 == $s2;
+	} else {
+	    return _eq($val1, $val2);
+	}
+    } elsif(not defined($val1) and not defined($val2)) {
+	return 1;
     } else {
-	return _eq($val1, $val2);
+	return undef;
     }
 }
 
