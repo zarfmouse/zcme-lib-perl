@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+# CPAN installed scripts and libs
+export PATH=${PATH}:/opt/app-root/src/extlib/bin
+export PERL5LIB=/opt/app-root/src/extlib/lib/perl5
+
+# Magic
+export_vars=$(cgroup-limits) ; export $export_vars
+
+export DAEMON_NAME=${DAEMON_NAME:-"daemon"}
+export DAEMON_PATH="/opt/app-root/src/${DAEMON_NAME}";
+
+if [ ! -f $DAEMON_PATH ]; then
+    echo "$DAEMON_PATH not found."
+    exit;
+fi
+
+exec $DAEMON_PATH
+
+
+
+
