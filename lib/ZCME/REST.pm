@@ -82,7 +82,7 @@ sub repeat_until_success {
 	eval {
 	    @retval = &$sub();
 	};
-	if($@ and $@ =~ /(?:Unable to connect)|(?:Connection timed out)|(?:Can\'t connect)|(?:Server closed connection without sending any data back)|(?:Network is unreachable)|(?:read timeout)|(?:502 Proxy Error)|(?:Could not save: there was a problem flushing the hibernate transaction)/) {
+	if($@ and $@ =~ /(?:Unable to connect)|(?:Connection timed out)|(?:Can\'t connect)|(?:Server closed connection without sending any data back)|(?:Network is unreachable)|(?:read timeout)|(?:502 Proxy Error)|(?:Could not save: there was a problem flushing the hibernate transaction)|(?:java\.net\.SocketTimeoutException)/) {
 	    warn "Repeating operation in $i seconds after error:\n$@" if $VERBOSE;
 	    sleep $i;
 	    next;
