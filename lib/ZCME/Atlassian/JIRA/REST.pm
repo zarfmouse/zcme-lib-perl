@@ -200,13 +200,14 @@ sub get_versions {
 sub search {
     my $self = shift;
     my $jql = shift;
+    my $start_at = shift;
 
     my $searchRequest = {
 	jql => $jql, 
 	fields => ['*all'],
      };
 
-    return (__PACKAGE__.'::Issue::Iterator')->new($self, $searchRequest);
+    return (__PACKAGE__.'::Issue::Iterator')->new($self, $searchRequest, $start_at);
 }
 
 sub link_type {

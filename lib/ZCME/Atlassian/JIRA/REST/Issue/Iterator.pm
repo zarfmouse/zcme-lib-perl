@@ -12,6 +12,8 @@ sub new {
     my $self = bless {}, (ref($class)||$class);
     $self->{_rest} = shift;
     $self->{_searchRequest} = shift;
+    my $start_at = shift || 0;
+
     $self->{_searchRequest}->{maxResults} = $maxResults;
 
     $self->{use_cache} = defined($self->{_rest}->cache_dir()) ? 1 : undef;
@@ -21,8 +23,8 @@ sub new {
 	$self->{_searchRequest}->{maxResults} = $maxCacheResults;
     }
 
-    $self->_get_results(0);
-    $self->{i} = 0;
+    $self->{i} = $start_at;
+    $self->_get_results($self->{i});
 
     return $self;
 }
