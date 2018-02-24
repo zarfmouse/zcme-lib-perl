@@ -10,7 +10,7 @@ use base qw(ZCME::REST::Object);
 use ZCME::Atlassian::JIRA::REST::Issue::Meta;
 
 use Carp qw(croak);
-use Data::Dumper;
+use JSON qw(encode_json);
 
 our $VERBOSE = 0;
 our $DRY_RUN = 0;
@@ -84,7 +84,16 @@ sub set {
 sub save {
     my $self = shift;
     if($VERBOSE) {
-	warn "Creating issue: ".Dumper($self->{fields}) if $VERBOSE;
+	warn "Creating issue:\n";
+        foreach my $key (keys %{$self->{fields}->{fields}}) {
+            my $val = $self->{fields}->{fields}->{$key};
+            my $key_name = $self->{_rest}->fieldname($key);
+	    my $val_str = $val;
+	    if(ref($val)) {
+		$val_str = encode_json($val);
+	    }
+            warn "\t$key ($key_name): $val_str\n";
+        }
     }
     if($DRY_RUN) {
 	return undef;
