@@ -7,8 +7,8 @@ use utf8;
 use IO::Handle;
 STDOUT->autoflush(1);
 STDERR->autoflush(1);
-STDOUT->binmode(":utf8");
-STDERR->binmode(":utf8");
+binmode(STDOUT, ":utf8");
+binmode(STDERR, ":utf8");
 
 my $dir;
 BEGIN {
@@ -17,8 +17,7 @@ BEGIN {
 }
 
 use lib "$dir/lib";
-use lib "$dir/external/lib/perl5";
-use local::lib "$dir/external";
+use lib "$dir/../extlib/lib/perl5";
 
 1;
 
