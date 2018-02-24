@@ -12,8 +12,7 @@ use Scalar::Util qw(blessed);
 use Data::Dumper qw(Dumper);
 
 my $lib = dirname(__FILE__);
-$lib =~ s[/lib/.*$][/lib];
-our $config = "$lib/ZCME/Date/DateManip.conf";
+our $config = "$lib/Date/DateManip.conf";
 
 sub _args {
     my @args = @_;
