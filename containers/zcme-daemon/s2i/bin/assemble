@@ -30,6 +30,7 @@ else
   echo "---> No cpanfile found, nothing to install"
 fi
 
+echo "---> Installing zcme-lib-perl..."
 git clone https://github.com/zarfmouse/zcme-lib-perl.git
 
 # Fix source directory permissions
