@@ -6,6 +6,7 @@ use warnings;
 package ZCME::Atlassian::JIRA::REST::Issue::Iterator;
 our $maxResults = 5;
 our $maxCacheResults = 100;
+our $useCache = 1;
 
 sub new {
     my $class = shift;
@@ -16,7 +17,7 @@ sub new {
 
     $self->{_searchRequest}->{maxResults} = $maxResults;
 
-    $self->{use_cache} = defined($self->{_rest}->cache_dir()) ? 1 : undef;
+    $self->{use_cache} = ($useCache && defined($self->{_rest}->cache_dir())) ? 1 : undef;
     if($self->{use_cache}) {
 	$self->{_searchRequest}->{fields} = ['key', 'updated'];
 	$self->{_searchRequest}->{expand} = [];

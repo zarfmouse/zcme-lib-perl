@@ -218,20 +218,7 @@ sub fieldeq {
 
 sub fieldkey {
     my $self = shift;
-    my $field_name = shift;
-
-    $self->expand('names');
-    foreach my $key (keys %{$self->{_content}->{names}}) {
-	if($self->{_content}->{names}->{$key} eq $field_name) {
-	    return $key;
-	}
-    }
-
-    my $field_key = $self->editmeta()->fieldkey($field_name);
-    return $field_key if (defined($field_key) && ($field_key ne $field_name));
-    $field_key = $self->{_rest}->fieldkey($field_name);
-    return $field_key if (defined($field_key) && ($field_key ne $field_name));
-    return $field_name;
+    return $self->rest_object()->fieldkey(shift);
 }
 
 #
