@@ -89,6 +89,7 @@ sub password {
 
 sub disconnect {
     my $self = shift;
+    $self->{dbh}->disconnect() if defined($self->{dbh});
     $self->{dbh} = undef;
     $self->{drh} = undef;
     return $self;
