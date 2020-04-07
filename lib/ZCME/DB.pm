@@ -24,6 +24,10 @@ sub new {
     $self->{base_url} = $secrets->get('base_url');
     if(defined($self->{base_url}) && $self->{base_url} =~ m[^(.+)://([^\/\:]+)(?:\:([0-9]+))?/(.+)$]) {
 	($self->{driver}, $self->{hostname}, $self->{port}, $self->{database}) = ($1,$2,$3,$4);
+    } else {
+	foreach my $key (qw(database hostname port)) {
+	    $self->{$key} = $secrets->get($key);
+	}
     }
 
     if($param{'-tunnel'}) {
