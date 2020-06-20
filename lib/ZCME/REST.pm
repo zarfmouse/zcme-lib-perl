@@ -7,7 +7,7 @@ use warnings;
 
 use LWP::UserAgent;
 use HTTP::Cookies;
-use JSON qw(decode_json encode_json);
+use JSON qw();
 use XML::Simple qw(:strict);
 use CGI qw(escape);
 use Data::Dumper qw(Dumper);
@@ -160,7 +160,11 @@ sub lwp_request {
     if(defined($body_query)) {
 	if(defined($format) and $format eq 'json') {
 	    $req->content_type("application/json; charset=UTF-8");
-	    $req->content(encode_json($body_query));
+	    my $json = JSON->new()->utf8();
+	    if($VERBOSE) {
+		$json->pretty()->canonical();
+	    }
+	    $req->content($json->encode($body_query));
 	} else {
 	    $req->content_type('application/x-www-form-urlencoded');
 	    my $qs = $self->_querystring_from_ref($body_query);
@@ -221,7 +225,8 @@ sub lwp_request {
 	    if($response_format eq 'json') {
 		my $retval;
 		eval {
-		    $retval = decode_json($content);
+		    my $json = JSON->new()->utf8();
+		    $retval = $json->decode($content);
 		};
 		if($@) {
 		    my $error = "JSON Decoding Failure: $@\n\n";
