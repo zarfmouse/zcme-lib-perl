@@ -51,6 +51,11 @@ sub jqlt_date {
     return $self->printf("%Y/%m/%d");
 }
 
+sub epoch {
+    my $self = shift;
+    return $self->printf("%O");
+}
+
 # NOTE: Date::Manip::Date does not allow subclassing so we have to
 # fake it like this.
 sub AUTOLOAD {
